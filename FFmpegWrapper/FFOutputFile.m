@@ -138,15 +138,47 @@ NSString const *kFFmpegOutputFormatKey = @"kFFmpegOutputFormatKey";
     
     //NSData *packetData = [NSData dataWithBytesNoCopy:packet->data length:packet->size freeWhenDone:NO];
     //NSLog(@"Org: %@", packetData);
-    if (outputCodecContext->codec_id == AV_CODEC_ID_H264) {
+//    if (outputCodecContext->codec_id == AV_CODEC_ID_H264)
+//    {
+//        for (FFBitstreamFilter *bsf in bitstreamFilters)
+//        {
+//            if (strcmp(bsf.bitstreamFilterContext->filter->name, "h264_mp4toannexb") == 1)
+//            {
+//                AVPacket newPacket = [self applyBitstreamFilter:bsf.bitstreamFilterContext packet:packet outputCodecContext:outputCodecContext];
+//                av_free_packet(packet);
+//                packet = &newPacket;
+//                break;
+//            }
+//        }
+//        //NSData *bsfData = [NSData dataWithBytesNoCopy:packet->data length:packet->size freeWhenDone:NO];
+//        //NSLog(@"bsf: %@", bsfData);        
+//    }
+//    else
+    if (outputCodecContext->codec_id == AV_CODEC_ID_AAC)
+    {
+        
+
         for (FFBitstreamFilter *bsf in bitstreamFilters) {
+            if (strcmp(bsf.bitstreamFilterContext->filter->name, "aac_adtstoasc") == 0)
+            {
+
+                AVBitStreamFilterContext* aacBitstreamFilterContext = av_bitstream_filter_init("aac_adtstoasc");
+//                AVPacket newPacket = *packet;
+//                int a = av_bitstream_filter_filter(aacBitstreamFilterContext, outputCodecContext, NULL, &newPacket.data, &newPacket.size, packet->data, packet->size, packet->flags & AV_PKT_FLAG_KEY);
+//                packet->data = newPacket.data;
+//                packet->size = newPacket.size;
+
             AVPacket newPacket = [self applyBitstreamFilter:bsf.bitstreamFilterContext packet:packet outputCodecContext:outputCodecContext];
+                if (&newPacket != packet) {
             av_free_packet(packet);
+                }
             packet = &newPacket;
+        }
         }
         //NSData *bsfData = [NSData dataWithBytesNoCopy:packet->data length:packet->size freeWhenDone:NO];
         //NSLog(@"bsf: %@", bsfData);
     }
+    
     
     ffOutputStream.lastMuxDTS = packet->dts;
     
@@ -162,13 +194,16 @@ NSString const *kFFmpegOutputFormatKey = @"kFFmpegOutputFormatKey";
 }
 
 - (BOOL) writeTrailerWithError:(NSError *__autoreleasing *)error {
+    NSLog(@"%s writeTrailerValue START", __func__);
     int writeTrailerValue = av_write_trailer(formatContext);
     if (writeTrailerValue < 0) {
         if (error != NULL) {
             *error = [FFUtilities errorForAVError:writeTrailerValue];
+            NSLog(@"%s writeTrailerValue %@", __func__, *error);
         }
         return NO;
     }
+    avio_close( formatContext->pb );
     return YES;
 }
 

@@ -90,14 +90,14 @@
         FFInputFile *inputFile = nil;
         FFOutputFile *outputFile = nil;
         NSError *error = nil;
-        NSFileManager *fileManager = [NSFileManager defaultManager];
-        NSDictionary *inputFileAttributes = [fileManager attributesOfItemAtPath:inputPath error:&error];
-        if (error) {
-            [self finishWithSuccess:NO error:error completionBlock:completionBlock];
-            return;
-        }
-        uint64_t totalBytesExpectedToRead = [[inputFileAttributes objectForKey:NSFileSize] unsignedLongLongValue];
-        uint64_t totalBytesRead = 0;
+//        NSFileManager *fileManager = [NSFileManager defaultManager];
+//        NSDictionary *inputFileAttributes = [fileManager attributesOfItemAtPath:inputPath error:&error];
+//        if (error) {
+//            [self finishWithSuccess:NO error:error completionBlock:completionBlock];
+//            return;
+//        }
+//        uint64_t totalBytesExpectedToRead = [[inputFileAttributes objectForKey:NSFileSize] unsignedLongLongValue];
+//        uint64_t totalBytesRead = 0;
         
         // Open the input file for reading
         inputFile = [[FFInputFile alloc] initWithPath:inputPath options:options];
@@ -118,8 +118,8 @@
             return;
         }
         
-        FFBitstreamFilter *bitstreamFilter = [[FFBitstreamFilter alloc] initWithFilterName:@"h264_mp4toannexb"];
-        [outputFile addBitstreamFilter:bitstreamFilter];
+//        FFBitstreamFilter *bitstreamFilter = [[FFBitstreamFilter alloc] initWithFilterName:@"h264_mp4toannexb"];
+//        [outputFile addBitstreamFilter:bitstreamFilter];
         
         // Read the input file
         BOOL continueReading = YES;
@@ -140,7 +140,7 @@
             packet->pts = av_rescale_q(packet->pts, inputStream.stream->time_base, outputStream.stream->time_base);
             packet->dts = av_rescale_q(packet->dts, inputStream.stream->time_base, outputStream.stream->time_base);
             
-            totalBytesRead += packet->size;
+//            totalBytesRead += packet->size;
             
             if (![outputFile writePacket:packet error:&error]) {
                 [self finishWithSuccess:NO error:error completionBlock:completionBlock];
@@ -149,7 +149,7 @@
             
             if (progressBlock) {
                 dispatch_async(callbackQueue, ^{
-                    progressBlock(packet->size, totalBytesRead, totalBytesExpectedToRead);
+//                    progressBlock(packet->size, totalBytesRead, totalBytesExpectedToRead);
                 });
             }
             av_free_packet(packet);
