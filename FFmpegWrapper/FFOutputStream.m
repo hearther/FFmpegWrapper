@@ -78,10 +78,9 @@
     //https://mtbcode.wordpress.com/2013/03/05/ffmpeg-enable-experimental-codecs-in-your-own-code/
 	codecContext->strict_std_compliance = FF_COMPLIANCE_EXPERIMENTAL; // for native aac support
 	/* put sample parameters */
-	//codecContext->sample_fmt  = AV_SAMPLE_FMT_FLT;
+    // this might cause warning but change this cause file can't play on mac with qucik time
 	codecContext->sample_fmt  = AV_SAMPLE_FMT_FLT;
-    codecContext->profile = FF_PROFILE_AAC_MAIN;
-//    codecContext->profile=FF_PROFILE_AAC_LOW;
+    codecContext->profile = FF_PROFILE_AAC_LOW;
 	codecContext->time_base.den = 44100;
 	codecContext->time_base.num = 1;
     codecContext->channel_layout = AV_CH_LAYOUT_STEREO;

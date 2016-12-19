@@ -161,27 +161,20 @@ NSString const *kFFmpegOutputFormatKey = @"kFFmpegOutputFormatKey";
         for (FFBitstreamFilter *bsf in bitstreamFilters) {
             if (strcmp(bsf.bitstreamFilterContext->filter->name, "aac_adtstoasc") == 0)
             {
-
-                AVBitStreamFilterContext* aacBitstreamFilterContext = av_bitstream_filter_init("aac_adtstoasc");
-//                AVPacket newPacket = *packet;
-//                int a = av_bitstream_filter_filter(aacBitstreamFilterContext, outputCodecContext, NULL, &newPacket.data, &newPacket.size, packet->data, packet->size, packet->flags & AV_PKT_FLAG_KEY);
-//                packet->data = newPacket.data;
-//                packet->size = newPacket.size;
-
-            AVPacket newPacket = [self applyBitstreamFilter:bsf.bitstreamFilterContext packet:packet outputCodecContext:outputCodecContext];
-                if (&newPacket != packet) {
-            av_free_packet(packet);
-                }
-            packet = &newPacket;
+                av_bitstream_filter_filter(bsf.bitstreamFilterContext, outputCodecContext, NULL, &packet->data, &packet->size, packet->data, packet->size, packet->flags & AV_PKT_FLAG_KEY);
+//                AVPacket newPacket = [self applyBitstreamFilter:bsf.bitstreamFilterContext packet:packet outputCodecContext:outputCodecContext];
+//                if (&newPacket != packet) {
+//                    av_free_packet(packet);
+//                }
+//                packet = &newPacket;
         }
         }
-        //NSData *bsfData = [NSData dataWithBytesNoCopy:packet->data length:packet->size freeWhenDone:NO];
-        //NSLog(@"bsf: %@", bsfData);
     }
     
     
     ffOutputStream.lastMuxDTS = packet->dts;
     
+    @synchronized (self) {
     int writeFrameValue = av_interleaved_write_frame(self.formatContext, packet);
     if (writeFrameValue < 0) {
         if (error != NULL) {
@@ -190,11 +183,14 @@ NSString const *kFFmpegOutputFormatKey = @"kFFmpegOutputFormatKey";
         return NO;
     }
     outputStream->codec->frame_number++;
+        
+    }
     return YES;
 }
 
 - (BOOL) writeTrailerWithError:(NSError *__autoreleasing *)error {
-    NSLog(@"%s writeTrailerValue START", __func__);
+    @synchronized (self) {
+        NSLog(@"%s %@ writeTrailerValue START", __func__, self);
     int writeTrailerValue = av_write_trailer(formatContext);
     if (writeTrailerValue < 0) {
         if (error != NULL) {
@@ -204,6 +200,8 @@ NSString const *kFFmpegOutputFormatKey = @"kFFmpegOutputFormatKey";
         return NO;
     }
     avio_close( formatContext->pb );
+        NSLog(@"%s %@ writeTrailerValue end", __func__, self);
+    }
     return YES;
 }
 
