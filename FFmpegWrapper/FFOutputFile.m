@@ -158,7 +158,8 @@ NSString const *kFFmpegOutputFormatKey = @"kFFmpegOutputFormatKey";
     {
         
 
-        for (FFBitstreamFilter *bsf in bitstreamFilters) {
+        for (FFBitstreamFilter *bsf in bitstreamFilters)
+        {
             if (strcmp(bsf.bitstreamFilterContext->filter->name, "aac_adtstoasc") == 0)
             {
                 av_bitstream_filter_filter(bsf.bitstreamFilterContext, outputCodecContext, NULL, &packet->data, &packet->size, packet->data, packet->size, packet->flags & AV_PKT_FLAG_KEY);
