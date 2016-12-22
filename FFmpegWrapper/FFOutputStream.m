@@ -49,7 +49,7 @@
     
     c->time_base.den = 30;
 	c->time_base.num = 1;
-    c->pix_fmt       = PIX_FMT_YUV420P;
+    c->pix_fmt       = AV_PIX_FMT_YUV420P;
 
     self.stream->time_base  = c->time_base;
 	if (self.parentFile.formatContext->oformat->flags & AVFMT_GLOBALHEADER)
