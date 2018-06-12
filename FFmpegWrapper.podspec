@@ -10,6 +10,6 @@ Pod::Spec.new do |s|
   s.source_files  = 'FFmpegWrapper/*.{h,m}'
   s.ios.deployment_target = '7.0'
   s.requires_arc = true
-
+  s.dependency 'ijkplayerPrecompiled'
 #  s.dependency 'FFmpeg', '2.8.3'
 end
